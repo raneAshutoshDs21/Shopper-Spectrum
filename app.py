@@ -61,16 +61,20 @@ with tabs[0]:
     if st.button("Get Recommendations"):
         match = lookup[lookup['Description'].str.contains(product_input, case=False, na=False)]
         if not match.empty:
-            stock_code = match.index[0]
-            try:
+            stock_code = match['StockCode'].values[0]
+            if stock_code in similarity_matrix.columns:
                 similar_scores = similarity_matrix[stock_code].sort_values(ascending=False)[1:6]
                 st.success("Top 5 Similar Products:")
                 for code in similar_scores.index:
-                    st.write(f"- {lookup.loc[code, 'Description']}")
-            except:
-                st.error("No similarity data found for this product.")
+                    desc = lookup.loc[lookup['StockCode'] == code, 'Description'].values
+                    if len(desc) > 0:
+                        st.write(f"- {desc[0]}")
+                    else:
+                        st.write(f"- Product code {code}")
+            else:
+                st.error("No similarity data available for this product.")
         else:
-            st.error("Product not found. Please try a more specific keyword.")
+            st.error("Product not found. Try a more specific keyword.")
 
 # ---------------------------
 # Customer Segmentation Tab
