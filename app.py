@@ -25,6 +25,7 @@ scaler = joblib.load("rfm_scaler.pkl")
 rfm_data = pd.read_csv("rfm_clustered.csv")
 lookup = pd.read_csv("product_lookup.csv")
 similarity_matrix = joblib.load("item_similarity_matrix.pkl")
+label_map = joblib.load("cluster_label_map.pkl")
 
 # ---------------------------
 # Page Configuration
@@ -88,14 +89,5 @@ with tabs[1]:
     if st.button("Predict Cluster"):
         scaled = scaler.transform([[r, f, m]])
         cluster = kmeans.predict(scaled)[0]
-
-        def label_cluster(cid):
-            return {
-                2: "High-Value",
-                3: "Regular",
-                0: "Occasional",
-                1: "At-Risk"
-            }.get(cid, "Unknown")
-
-        label = label_cluster(cluster)
+        label = label_map.get(cluster, "Unknown")
         st.success(f"This customer belongs to the **'{label}'** segment.")
